@@ -2,6 +2,7 @@ package com.davidperez.proyectocomponenteselectronicosback.dto;
 
 import com.davidperez.proyectocomponenteselectronicosback.model.PackageType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,11 +38,7 @@ public class PassiveComponentRequest {
     private Double tolerance;
 
     @NotNull(message = "El valor nominal es obligatorio")
-    @Positive(message = "El valor nominal debe ser positivo")
-    @Schema(description = "Valor numérico del componente", example = "100.0", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Double nominalValue;
-
-    @Size(max = 20, message = "La unidad no puede superar 20 caracteres")
-    @Schema(description = "Unidad del valor nominal (opcional): Ohm, uF, uH, nF, etc.", example = "Ohm")
-    private String nominalUnit;
+    @Valid
+    @Schema(description = "Valor nominal del componente con su unidad", requiredMode = Schema.RequiredMode.REQUIRED)
+    private NominalValueRequest nominalValue;
 }

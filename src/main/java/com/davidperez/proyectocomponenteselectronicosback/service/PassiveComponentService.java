@@ -1,10 +1,13 @@
 package com.davidperez.proyectocomponenteselectronicosback.service;
 
+import com.davidperez.proyectocomponenteselectronicosback.dto.NominalValueRequest;
 import com.davidperez.proyectocomponenteselectronicosback.dto.PassiveComponentRequest;
 import com.davidperez.proyectocomponenteselectronicosback.model.Manufacturer;
+import com.davidperez.proyectocomponenteselectronicosback.model.NominalValue;
 import com.davidperez.proyectocomponenteselectronicosback.model.PackageType;
 import com.davidperez.proyectocomponenteselectronicosback.model.PassiveComponent;
 import com.davidperez.proyectocomponenteselectronicosback.repository.ManufacturerRepository;
+import com.davidperez.proyectocomponenteselectronicosback.repository.NominalValueRepository;
 import com.davidperez.proyectocomponenteselectronicosback.repository.PassiveComponentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,9 @@ public class PassiveComponentService implements IPassiveComponentService {
     @Autowired
     private ManufacturerRepository manufacturerRepository;
 
+    @Autowired
+    private NominalValueRepository nominalValueRepository;
+
     private Manufacturer resolveManufacturer(int manufacturerId) {
         return manufacturerRepository.findById(manufacturerId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -29,16 +35,27 @@ public class PassiveComponentService implements IPassiveComponentService {
                         "Fabricante con id " + manufacturerId + " no encontrado"));
     }
 
+    private NominalValue resolveNominalValue(NominalValueRequest req) {
+        return nominalValueRepository
+                .findByValueAndUnit(req.getValue(), req.getUnit())
+                .orElseGet(() -> {
+                    NominalValue nv = new NominalValue();
+                    nv.setValue(req.getValue());
+                    nv.setUnit(req.getUnit());
+                    return nominalValueRepository.save(nv);
+                });
+    }
+
     @Override
     public PassiveComponent create(PassiveComponentRequest request) {
         Manufacturer manufacturer = resolveManufacturer(request.getManufacturerId());
+        NominalValue nominalValue = resolveNominalValue(request.getNominalValue());
         PassiveComponent pc = new PassiveComponent();
         pc.setPinCount(request.getPinCount());
         pc.setPackageType(request.getPackageType());
         pc.setVoltage(request.getVoltage());
         pc.setTolerance(request.getTolerance());
-        pc.setNominalValue(request.getNominalValue());
-        pc.setNominalUnit(request.getNominalUnit());
+        pc.setNominalValue(nominalValue);
         pc.setManufacturer(manufacturer);
         return repository.save(pc);
     }
@@ -80,10 +97,11 @@ public class PassiveComponentService implements IPassiveComponentService {
             map.put("voltage",          row[3]);
             map.put("createdAt",        row[4]);
             map.put("tolerance",        row[5]);
-            map.put("nominalValue",     row[6]);
-            map.put("nominalUnit",      row[7]);
-            map.put("manufacturerId",   row[8]);   // llave foránea
-            map.put("manufacturerName", row[9]);   // atributo de Manufacturer
+            map.put("nominalValueId",   row[6]);   // llave foránea
+            map.put("nominalValue",     row[7]);   // atributo de NominalValue
+            map.put("nominalUnit",      row[8]);   // atributo de NominalValue
+            map.put("manufacturerId",   row[9]);   // llave foránea
+            map.put("manufacturerName", row[10]);  // atributo de Manufacturer
             result.add(map);
         }
         return result;
@@ -93,12 +111,12 @@ public class PassiveComponentService implements IPassiveComponentService {
     public Optional<PassiveComponent> update(int id, PassiveComponentRequest request) {
         return repository.findById(id).map(existing -> {
             Manufacturer manufacturer = resolveManufacturer(request.getManufacturerId());
+            NominalValue nominalValue = resolveNominalValue(request.getNominalValue());
             existing.setPinCount(request.getPinCount());
             existing.setPackageType(request.getPackageType());
             existing.setVoltage(request.getVoltage());
             existing.setTolerance(request.getTolerance());
-            existing.setNominalValue(request.getNominalValue());
-            existing.setNominalUnit(request.getNominalUnit());
+            existing.setNominalValue(nominalValue);
             existing.setManufacturer(manufacturer);
             return repository.save(existing);
         });

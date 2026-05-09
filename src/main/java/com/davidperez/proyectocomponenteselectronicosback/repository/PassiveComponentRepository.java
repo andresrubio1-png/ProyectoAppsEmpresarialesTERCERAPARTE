@@ -27,7 +27,8 @@ public interface PassiveComponentRepository extends JpaRepository<PassiveCompone
      */
     @Query("""
         SELECT pc.id, pc.pinCount, pc.packageType, pc.voltage, pc.createdAt,
-               pc.tolerance, pc.nominalValue, pc.nominalUnit,
+               pc.tolerance,
+               pc.nominalValue.id, pc.nominalValue.value, pc.nominalValue.unit,
                pc.manufacturer.id, pc.manufacturer.name
         FROM PassiveComponent pc
         WHERE (:packageType IS NULL OR pc.packageType = :packageType)

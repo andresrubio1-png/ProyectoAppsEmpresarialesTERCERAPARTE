@@ -54,16 +54,11 @@ public class PassiveComponent {
     @Schema(description = "Tolerancia del componente (ej: 0.05 = 5%)", example = "0.05")
     private Double tolerance;
 
-    @Column(name = "NOMINAL_VALUE", nullable = false, columnDefinition = "NUMBER")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_NOMINAL_VALUE", nullable = false)
     @NotNull(message = "El valor nominal es obligatorio")
-    @Positive(message = "El valor nominal debe ser positivo")
-    @Schema(description = "Valor nominal del componente", example = "100.0")
-    private Double nominalValue;
-
-    @Column(name = "NOMINAL_UNIT", length = 20)
-    @Size(max = 20, message = "La unidad no puede superar 20 caracteres")
-    @Schema(description = "Unidad del valor nominal (opcional): Ohm, uF, uH, nF, etc.", example = "Ohm")
-    private String nominalUnit;
+    @Schema(description = "Valor nominal del componente")
+    private NominalValue nominalValue;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ID_MANUFACTURER", nullable = false)
