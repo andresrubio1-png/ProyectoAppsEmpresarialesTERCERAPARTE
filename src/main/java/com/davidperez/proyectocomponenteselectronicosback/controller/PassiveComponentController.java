@@ -25,7 +25,6 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 @Tag(name = "Passive Components", description = "Gestión de componentes electrónicos pasivos")
 public class PassiveComponentController {
-//JIJIJIJI
     @Autowired
     private IPassiveComponentService service;
 
